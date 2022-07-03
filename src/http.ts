@@ -2,7 +2,6 @@ import * as dotenv from 'dotenv';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import { handleData } from './utils';
 
 dotenv.config();
 
