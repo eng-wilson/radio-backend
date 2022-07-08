@@ -1,4 +1,6 @@
 import { httpServer } from './http';
 import './websocket';
 
-httpServer.listen(3333, () => 'Server is running on PORT 3333');
+const PORT = process.env.PORT || 3333;
+
+httpServer.listen(PORT, () => 'Server is running on PORT 3333');
