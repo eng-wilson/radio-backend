@@ -8,6 +8,7 @@ const io = new Server(httpServer);
 interface Message {
   username: string;
   body: string;
+  color: string;
 }
 
 let duration = 0;
@@ -62,8 +63,9 @@ io.on('connection', async (socket) => {
 
   socket.on('message', (message: Message) => {
     history.push(message);
-
-    console.log(message);
+    if (history.length > 100) {
+      history.shift();
+    }
 
     io.emit('message', history);
   });
