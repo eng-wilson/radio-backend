@@ -1,7 +1,8 @@
-import { Server } from 'socket.io';
+import { Server } from "socket.io";
 
-import { httpServer } from './http';
-import { handlePlaylistData, handleVideoDuration } from './utils';
+import { httpServer } from "./http";
+import { handlePlaylistData, handleVideoDuration } from "./utils";
+import { sendMessageController } from "./useCases/sendMessage";
 
 const io = new Server(httpServer);
 
@@ -15,7 +16,7 @@ let duration = 0;
 let timer = 0;
 let videoPosition = 0;
 let allVideos = [];
-let nowPlaying = '';
+let nowPlaying = "";
 
 const history: Message[] = [];
 
@@ -56,21 +57,16 @@ const getVideoDuration = async (videoId) => {
 
 getNowPlaying();
 
-io.on('connection', async (socket) => {
-  io.emit('message', history);
+io.on("connection", async (socket) => {
+  io.emit("message", history);
 
-  socket.emit('nowPlaying', nowPlaying, timer);
+  socket.emit("nowPlaying", nowPlaying, timer);
 
-  socket.on('message', (message: Message) => {
-    history.push(message);
-    if (history.length > 100) {
-      history.shift();
-    }
-
-    io.emit('message', history);
+  socket.on("message", (message: Message) => {
+    sendMessageController.handle(message, io);
   });
 
-  socket.on('next', () => {
+  socket.on("next", () => {
     videoPosition += 1;
 
     const { videoId } = allVideos[videoPosition].contentDetails;
@@ -78,7 +74,7 @@ io.on('connection', async (socket) => {
     nowPlaying = videoId;
     timer = 0;
 
-    io.emit('nowPlaying', nowPlaying);
+    io.emit("nowPlaying", nowPlaying);
   });
 });
 
@@ -99,6 +95,6 @@ setInterval(() => {
 
     getVideoDuration(nowPlaying);
 
-    io.emit('nowPlaying', nowPlaying);
+    io.emit("nowPlaying", nowPlaying);
   }
 }, 1000);
