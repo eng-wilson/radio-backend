@@ -2,23 +2,16 @@ import { Server } from "socket.io";
 
 import { httpServer } from "./http";
 import { handlePlaylistData, handleVideoDuration } from "./utils";
-import { sendMessageController } from "./useCases/sendMessage";
+import { sendMessageController, listMessagesController } from "./useCases";
+import { Message } from "./model/Message";
 
 const io = new Server(httpServer);
-
-interface Message {
-  username: string;
-  body: string;
-  color: string;
-}
 
 let duration = 0;
 let timer = 0;
 let videoPosition = 0;
 let allVideos = [];
 let nowPlaying = "";
-
-const history: Message[] = [];
 
 const getNowPlaying = async () => {
   try {
@@ -58,7 +51,7 @@ const getVideoDuration = async (videoId) => {
 getNowPlaying();
 
 io.on("connection", async (socket) => {
-  io.emit("message", history);
+  listMessagesController.handle(io);
 
   socket.emit("nowPlaying", nowPlaying, timer);
 
