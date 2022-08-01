@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 
 import { httpServer } from "./http";
 import { handlePlaylistData, handleVideoDuration } from "./utils";
-import { sendMessageController, listMessagesController } from "./useCases";
+import { sendMessageController, listMessagesController, nextVideoController } from "./useCases";
 import { Message } from "./model/Message";
 
 const io = new Server(httpServer);
@@ -60,14 +60,8 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("next", () => {
-    videoPosition += 1;
-
-    const { videoId } = allVideos[videoPosition].contentDetails;
-
-    nowPlaying = videoId;
+    nextVideoController.handle(io)
     timer = 0;
-
-    io.emit("nowPlaying", nowPlaying);
   });
 });
 
@@ -75,19 +69,9 @@ setInterval(() => {
   timer += 1;
 
   if (timer === duration) {
-    videoPosition += 1;
-
-    if (videoPosition === allVideos.length - 1) {
-      videoPosition = 0;
-    }
-
-    const { videoId } = allVideos[videoPosition].contentDetails;
-
-    nowPlaying = videoId;
+    nextVideoController.handle(io)
     timer = 0;
-
+    
     getVideoDuration(nowPlaying);
-
-    io.emit("nowPlaying", nowPlaying);
   }
 }, 1000);
