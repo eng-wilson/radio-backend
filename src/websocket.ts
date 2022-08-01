@@ -2,38 +2,26 @@ import { Server } from "socket.io";
 
 import { httpServer } from "./http";
 import { handlePlaylistData, handleVideoDuration } from "./utils";
-import { sendMessageController, listMessagesController, nextVideoController } from "./useCases";
+import {
+  sendMessageController,
+  listMessagesController,
+  nextVideoController,
+  setPlaylistController,
+} from "./useCases";
 import { Message } from "./model/Message";
 
 const io = new Server(httpServer);
 
 let duration = 0;
 let timer = 0;
-let videoPosition = 0;
-let allVideos = [];
 let nowPlaying = "";
 
 const getNowPlaying = async () => {
   try {
-    const data = await handlePlaylistData();
-    allVideos = data.items;
+    const { items } = await handlePlaylistData();
+    const playlist = setPlaylistController.handle(items);
 
-    if (videoPosition < allVideos.length - 1) {
-      const { videoId } = allVideos[videoPosition].contentDetails;
-
-      videoPosition += 1;
-
-      nowPlaying = videoId;
-    } else {
-      videoPosition = 0;
-
-      const { videoId } = allVideos[videoPosition].contentDetails;
-
-      nowPlaying = videoId;
-    }
-
-    getVideoDuration(nowPlaying);
-    console.log(nowPlaying);
+    getVideoDuration(playlist[0].contentDetails.videoId);
   } catch (e) {
     console.log(e);
   }
@@ -60,7 +48,7 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("next", () => {
-    nextVideoController.handle(io)
+    nextVideoController.handle(io);
     timer = 0;
   });
 });
@@ -69,9 +57,9 @@ setInterval(() => {
   timer += 1;
 
   if (timer === duration) {
-    nextVideoController.handle(io)
+    nextVideoController.handle(io);
     timer = 0;
-    
+
     getVideoDuration(nowPlaying);
   }
 }, 1000);

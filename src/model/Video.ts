@@ -1,10 +1,10 @@
 class Video {
-  duration: number;
-  videoId: string;
+  contentDetails: {
+    videoId: string;
+  };
 
-  constructor({ videoId, duration }: Video) {
-    this.videoId = videoId;
-    this.duration = duration;
+  constructor({ contentDetails }: Video) {
+    this.contentDetails = contentDetails;
   }
 }
 

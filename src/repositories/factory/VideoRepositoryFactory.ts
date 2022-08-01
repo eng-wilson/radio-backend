@@ -1,14 +1,14 @@
-import { Video } from '../../model/Video';
-import { VideoRepository } from '../VideoRepository';
+import { Video } from "../../model/Video";
+import { VideoRepository } from "../VideoRepository";
 
 class VideoRepositoryFactory implements VideoRepository {
-  private playlist: Video[]
-  private position: number
+  private playlist: Video[];
+  private position: number;
 
-  private static INSTANCE: VideoRepositoryFactory
+  private static INSTANCE: VideoRepositoryFactory;
 
   private constructor() {
-    this.playlist = []
+    this.playlist = [];
     this.position = 0;
   }
 
@@ -22,20 +22,26 @@ class VideoRepositoryFactory implements VideoRepository {
   nextVideo(position: number): string {
     this.position = position;
 
-    return this.playlist[position].videoId;
+    return this.playlist[position].contentDetails.videoId;
   }
 
   getPlaylist(): Video[] {
-    return this.playlist
+    return this.playlist;
   }
 
-  setPlaylist(playlist: Video[]) {
+  setPlaylist(playlist: Video[]): Video[] {
     this.playlist = playlist;
+
+    return this.playlist;
   }
 
   getPosition(): number {
-    return this.position
+    return this.position;
+  }
+
+  getNowPlaying(): string {
+    return this.playlist[this.position].contentDetails.videoId;
   }
 }
 
-export { VideoRepositoryFactory }
+export { VideoRepositoryFactory };
